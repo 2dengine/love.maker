@@ -20,4 +20,4 @@ local stamp = love.maker.getComment(dest) -- get the stamp
 
 ## Credits
 RamiLego4Game (compression)
-stravant, aryajur (minification)
+ReFreezed, stravant, aryajur (minification)
