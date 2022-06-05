@@ -7,7 +7,7 @@
 --=  Tokenize Lua code or create ASTs (Abstract Syntax Trees)
 --=  and convert the data back to Lua.
 --=
---=  Version: 2.1 (2021-09-03)
+--=  Version: 2.2 (2022-06-02)
 --=
 --=  License: MIT (see the bottom of this file)
 --=  Website: http://luaparser.refreezed.com/
@@ -163,6 +163,12 @@ removeChild()
 isExpression()
 	bool = parser.isExpression( astNode )
 	Returns true for expression nodes and false for statements.
+	Note that call nodes count as expressions for this function, i.e. return true.
+
+isStatement()
+	bool = parser.isStatement( astNode )
+	Returns true for statements and false for expression nodes.
+	Note that call nodes count as statements for this function, i.e. return true.
 
 validateTree()
 	isValid, errorMessages = validateTree( astNode )
@@ -187,7 +193,7 @@ updateReferences()
 	parser.updateReferences( astNode [, updateTopNodePositionInfo=true ] )
 	Update references between nodes in the tree.
 	This function sets 'parent'+'container'+'key' for all nodes, 'declaration' for identifiers and vararg nodes, and 'label' for goto nodes.
-	If 'updateTopNodePositionInfo' is false then 'parent', 'container' and 'key' will remain as-it for 'astNode' specifically.
+	If 'updateTopNodePositionInfo' is false then 'parent', 'container' and 'key' will remain as-is for 'astNode' specifically.
 
 simplify()
 	stats = simplify( astNode )
@@ -423,17 +429,17 @@ Special number notation rules.
 
 -============================================================]=]
 
-local PARSER_VERSION = "2.1.0"
+local PARSER_VERSION = "2.2.0"
 
 local NORMALIZE_MINUS_ZERO, HANDLE_ENV
 do
 	local n              = 0
-	NORMALIZE_MINUS_ZERO = tostring(-n) == "0"
+	NORMALIZE_MINUS_ZERO = tostring(-n) == "0" -- Lua 5.3+ normalizes -0 to 0.
 end
 do
 	local pcall = pcall
 	local _ENV  = nil
-	HANDLE_ENV  = not pcall(function() local x = _G end)
+	HANDLE_ENV  = not pcall(function() return _G end) -- Looking up the global _G will raise an error if _ENV is supported (Lua 5.2+).
 end
 
 local assert       = assert
@@ -482,7 +488,7 @@ local maybeWrapInt = (
 		-- have to use mod again. Gah!
 		return tonumber(n % 0x100000000) % 0x100000000 -- 0x100000000 == 2^32
 	end)
-	or (_VERSION == "Lua 5.2" and bit32.band)
+	or (_VERSION == "Lua 5.2" and require"bit32".band)
 	or function(n)  return n  end
 )
 
@@ -568,7 +574,7 @@ local TOKEN_BYTES = {
 	NAME_START      = newCharSet"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_",
 	DASH            = newCharSet"-",
 	NUM             = newCharSet"0123456789",
-	NUM_OR_DOT      = newCharSet"0123456789.",
+	-- NUM_OR_DOT   = newCharSet"0123456789.",
 	QUOTE           = newCharSet"\"'",
 	SQUARE          = newCharSet"[",
 	DOT             = newCharSet".",
@@ -1159,7 +1165,7 @@ do
 		local BYTES_NAME_START      = TOKEN_BYTES.NAME_START
 		local BYTES_DASH            = TOKEN_BYTES.DASH
 		local BYTES_NUM             = TOKEN_BYTES.NUM
-		local BYTES_NUM_OR_DOT      = TOKEN_BYTES.NUM_OR_DOT
+		-- local BYTES_NUM_OR_DOT   = TOKEN_BYTES.NUM_OR_DOT
 		local BYTES_QUOTE           = TOKEN_BYTES.QUOTE
 		local BYTES_SQUARE          = TOKEN_BYTES.SQUARE
 		local BYTES_DOT             = TOKEN_BYTES.DOT
@@ -3496,8 +3502,8 @@ end
 
 
 
--- declIdent|nil    = findIdentifierDeclaration( ident )
--- declIdent.parent = decl|func|forLoop
+-- declIdent | nil  = findIdentifierDeclaration( ident )
+-- declIdent.parent = decl | func | forLoop
 local function findIdentifierDeclaration(ident)
 	local name   = ident.name
 	local parent = ident
@@ -3511,20 +3517,30 @@ local function findIdentifierDeclaration(ident)
 		if parent.type == "declaration" then
 			local decl = parent
 
-			if lastChild.container ~= decl.values then
-				local declIdent = lastItemWith1(decl.names, "name", name)
-				if declIdent then  return declIdent  end
+			if lastChild.container == decl.names then
+				assert(lastChild == ident)
+				return ident -- ident is the declaration node.
 			end
 
 		elseif parent.type == "function" then
-			local func      = parent
-			local declIdent = lastItemWith1(func.parameters, "name", name) -- Note: This will ignore any vararg parameter.
-			if declIdent then  return declIdent  end
+			local func = parent
+
+			if lastChild.container == func.parameters then
+				assert(lastChild == ident)
+				return ident -- ident is the declaration node.
+			else
+				local func      = parent
+				local declIdent = lastItemWith1(func.parameters, "name", name) -- Note: This will ignore any vararg parameter.
+				if declIdent then  return declIdent  end
+			end
 
 		elseif parent.type == "for" then
 			local forLoop = parent
 
-			if lastChild.container ~= forLoop.values then
+			if lastChild.container == forLoop.names then
+				assert(lastChild == ident)
+				return ident -- ident is the declaration node.
+			elseif lastChild.container ~= forLoop.values then
 				local declIdent = lastItemWith1(forLoop.names, "name", name)
 				if declIdent then  return declIdent  end
 			end
@@ -4139,6 +4155,7 @@ local function getInformationAboutIdentifiersAndUpdateReferences(node)
 				statementOrInterest, block = findParentStatementAndBlockOrNodeOfInterest(block, currentDeclIdent)
 
 				if not statementOrInterest then
+					-- We should only get here for globals (i.e. there should be no declaration).
 					assert(not currentDeclIdent)
 					return
 				end
@@ -4798,10 +4815,10 @@ do
 end
 
 -- stats = minify( node [, optimize=false ] )
-local function minify(node, optimize)
+local function minify(node, doOptimize)
 	local stats = Stats()
 
-	if optimize then
+	if doOptimize then
 		_optimize(node, stats)
 	end
 
@@ -5295,7 +5312,7 @@ do
 					local b1, b2, b3, b4 = stringByte(s, pos, pos+3)
 
 					-- Printable ASCII.
-					if R(b1,32,126) and b1 ~= 92 then
+					if R(b1,32,126) then
 						if     b1 == quoteByte then  tableInsert(buffer, "\\") ; tableInsert(buffer, quote) ; pos = pos + 1
 						elseif b1 == 92        then  tableInsert(buffer, [[\\]])                            ; pos = pos + 1
 						else                         tableInsert(buffer, stringSub(s, pos, pos))            ; pos = pos + 1
@@ -6094,7 +6111,7 @@ do
 		elseif nodeType == "literal" then
 			local literal = node
 			local vType   = type(literal.value)
-			if not (vType == "number" or vType == "string" or vType == "boolean" or vType == "nil") then
+			if not (vType == "number" or vType == "string" or vType == "boolean" or vType == "nil" or (jit and vType == "cdata" and tonumber(literal.value))) then
 				addValidationError(path, errors, "Invalid literal value type '%s'.", vType)
 			end
 
@@ -6429,6 +6446,10 @@ local function isExpression(node)
 	return EXPRESSION_TYPES[node.type] == true
 end
 
+local function isStatement(node)
+	return EXPRESSION_TYPES[node.type] == nil or node.type == "call"
+end
+
 
 
 local function resetNextId()
@@ -6450,7 +6471,7 @@ local function valueToAst(v, sortTableKeys)
 		local keys      = {}
 		local indices   = {}
 
-		for k, v in pairs(t) do
+		for k in pairs(t) do
 			tableInsert(keys, k)
 		end
 
@@ -6521,6 +6542,7 @@ parser = {
 	removeChild         = removeChild,
 
 	isExpression        = isExpression,
+	isStatement         = isStatement,
 	validateTree        = validateTree,
 
 	traverseTree        = traverseTree,
@@ -6555,7 +6577,7 @@ return parser
 
 --[=[===========================================================
 
-Copyright © 2020-2021 Marcus 'ReFreezed' Thunström
+Copyright © 2020-2022 Marcus 'ReFreezed' Thunström
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
