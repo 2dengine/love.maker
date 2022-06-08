@@ -1,5 +1,6 @@
 # love.maker
-love.maker is an automated distribution tool for Love2d that allows you to customize, build and output a minified .love file anywhere.
+love.maker is a library for Love2d that allows you to customize, build and output a compiled or minified .love file anywhere.
+The library is written in Lua with no external dependencies besides Love2d and is ideal for automation. 
 
 ## Example
 
@@ -16,6 +17,7 @@ build:ignoreMatch('^/.git') -- ignore based on pattern matching
 build:allow("/images/exception.jpg") -- whitelist a specific file
 build:save(dest, "DEMO") -- absolute path and comment/stamp
 local stamp = love.maker.getComment(dest) -- get the stamp
+print(stamp)
 ```
 
 ## Credits
