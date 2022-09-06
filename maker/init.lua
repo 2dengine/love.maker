@@ -1,10 +1,9 @@
 local lfs = love.filesystem
 local sav = lfs.getSaveDirectory()
 local src = lfs.getSource()
-local lib = (...):match("(.-)[^%.]+$")
-local zapi = require(lib.."zapi")
---local minify = require(lib.."minify")
-local parser = require(lib.."minify")
+local lib = (...)
+local zapi = require(lib..".zapi")
+local parser = require(lib..".minify")
 
 local minify = function(s)
   local ast = parser.parse(s)
