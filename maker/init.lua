@@ -49,7 +49,8 @@ function maker.newBuild(...)
   end
 
   function build:save(dest, comment, mode)
-    local tmp = os.tmpname():gsub("\\", "/")
+    local tmp = os.tmpname():gsub('/', '')
+    tmp = tmp:gsub('\\', '/')
     local file, err1 = lfs.newFile(tmp, "w")
     if not file then
       return false, err1
@@ -76,8 +77,8 @@ function maker.newBuild(...)
     local size = file:getSize()
     file:close()
     os.remove(dest)
-    local ok, err2 = os.rename(sav..tmp, dest)
-    os.remove(sav..tmp)
+    local ok, err2 = os.rename(sav..'/'..tmp, dest)
+    os.remove(sav..'/'..tmp)
     return ok, err2 or size
   end
   

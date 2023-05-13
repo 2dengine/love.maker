@@ -9,7 +9,7 @@ The library is written in Lua with no external dependencies besides Love2d and i
 local sav = love.filesystem.getSaveDirectory()
 local proj = love.filesystem.getIdentity()
 
-love.maker = require("maker.main")
+love.maker = require("maker")
 local build = love.maker.newBuild()
 build:save(sav.."/"..proj..".love")
 ```
@@ -17,3 +17,4 @@ build:save(sav.."/"..proj..".love")
 ## Credits
 RamiLego4Game (compression)
 ReFreezed, stravant, aryajur (minification)
+gphg (Linux testing)
