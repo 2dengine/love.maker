@@ -118,7 +118,7 @@ function maker.newBuild(gamepath)
     os.remove(sav..'/'..tmp)
 
     if build.prefix then
-      --build:cleanup(build.prefix)
+      build:cleanup(build.prefix)
       build.prefix = nil
     end
 
