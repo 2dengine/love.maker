@@ -23,4 +23,5 @@ ReFreezed: https://github.com/ReFreezed/DumbLuaParser (MIT)
 stravant: https://github.com/aryajur/lua-minify (MIT)
 aryajur: https://github.com/stravant/LuaMinify (MIT)
 
-gphg (Linux testing)
+### Testing
+gphg (Linux)
