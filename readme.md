@@ -15,6 +15,12 @@ build:save(sav.."/"..proj..".love")
 ```
 
 ## Credits
-RamiLego4Game (compression)
-ReFreezed, stravant, aryajur (minification)
+### Compression
+RamiLego4Game: https://github.com/Rami-Sabbagh/LoveZip (MIT)
+
+### Minification
+ReFreezed: https://github.com/ReFreezed/DumbLuaParser (MIT)
+stravant: https://github.com/aryajur/lua-minify (MIT)
+aryajur: https://github.com/stravant/LuaMinify (MIT)
+
 gphg (Linux testing)
