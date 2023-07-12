@@ -10,18 +10,22 @@ local sav = love.filesystem.getSaveDirectory()
 local proj = love.filesystem.getIdentity()
 
 love.maker = require("maker")
-local build = love.maker.newBuild()
+local build = love.maker.newBuild("C://path/to/project/folder/")
 build:save(sav.."/"..proj..".love")
 ```
+## Limitations
+* Folders located outside of the currently active Love2D directory are copied to the AppData folder before processing
+* Empty directories are not included in the generated file
+* Does not fuse games
 
 ## Credits
-### Compression
-RamiLego4Game: https://github.com/Rami-Sabbagh/LoveZip (MIT)
+Library by 2dengine LLC (MIT License) https://github.com/Rami-Sabbagh/LoveZip
 
-### Minification
-ReFreezed: https://github.com/ReFreezed/DumbLuaParser (MIT)
-stravant: https://github.com/aryajur/lua-minify (MIT)
-aryajur: https://github.com/stravant/LuaMinify (MIT)
+Compression by Rami Sabbagh (MIT License) https://github.com/Rami-Sabbagh/LoveZip
 
-### Testing
-gphg (Linux)
+Minification by Marcus 'ReFreezed' Thunström (MIT License) https://github.com/ReFreezed/DumbLuaParser
+
+## Testing
+Linux testing by gphg
+
+Additional testing by the Love2D community https://love2d.org/forums/viewtopic.php?t=86893
