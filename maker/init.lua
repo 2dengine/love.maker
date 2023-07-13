@@ -20,7 +20,7 @@ end
 function maker.newBuild(gamepath)
   local build = {}
   local files = { [""] = true }
-  
+
   function build:copy(s)
     -- generate a temporary folder
     local tmp = os.tmpname():gsub('[/%.]', '').."/"
@@ -40,14 +40,14 @@ function maker.newBuild(gamepath)
     handle:close()
     return tmp
   end
-  
+
   function build:cleanup(tmp)
     build:recursive(tmp, '', function(path, full)
       lfs.remove(full)
     end)
     lfs.remove(tmp)
   end
-  
+
   function build:allow(path)
     files[path] = true
   end
@@ -124,7 +124,7 @@ function maker.newBuild(gamepath)
 
     return ok, err2 or size
   end
-  
+
   function build:scan()
     local prefix = build.prefix or ''
     local allowed = maker.ext
@@ -144,7 +144,7 @@ function maker.newBuild(gamepath)
       end)
     end
   end
-  
+
   build.base = src
   build.prefix = nil
   if gamepath then
@@ -152,7 +152,7 @@ function maker.newBuild(gamepath)
     build.prefix = build:copy(gamepath)
   end
   build:scan()
-  
+
   return build
 end
 
