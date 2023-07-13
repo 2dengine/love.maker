@@ -6573,8 +6573,6 @@ parser = {
 
 return parser
 
-
-
 --[=[===========================================================
 
 Copyright © 2020-2022 Marcus 'ReFreezed' Thunström
