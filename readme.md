@@ -19,7 +19,7 @@ build:save(sav.."/"..proj..".love")
 * Does not fuse games
 
 ## Credits
-Library by 2dengine LLC (MIT License) https://github.com/Rami-Sabbagh/LoveZip
+Library by 2dengine LLC (MIT License) https://github.com/2dengine/love.maker
 
 Compression by Rami Sabbagh (MIT License) https://github.com/Rami-Sabbagh/LoveZip
 
