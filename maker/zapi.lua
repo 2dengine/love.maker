@@ -11,63 +11,63 @@ local char = string.char
   [encryption header 1]
   [file data 1]
   [data descriptor 1]
-  . 
+  .
   .
   .
   [local file header n]
   [encryption header n]
   [file data n]
   [data descriptor n]
-  [archive decryption header] 
-  [archive extra data record] 
+  [archive decryption header]
+  [archive extra data record]
   [central directory header 1]
   .
   .
   .
   [central directory header n]
   [zip64 end of central directory record]
-  [zip64 end of central directory locator] 
+  [zip64 end of central directory locator]
   [end of central directory record]
-  
+
 ]]
 
 --== Helper functions ==--
 
 local function newStringFile(data)
   local str = data or ""
-  
+
   local file = {}
-  
+
   local pos = 0
-  
+
   function file:getSize() return #str end
   function file:seek(p) pos = p end
   function file:tell() return pos end
   function file:read(bytes)
     if bytes then
       if pos+bytes > #str then bytes = #str-pos end
-      
+
       local substr = str:sub(pos+1,pos+bytes)
-      
+
       pos = pos + bytes
-      
+
       return substr, bytes
     else
       return str
     end
   end
-  
+
   function file:write(d,s)
     str = str:sub(1,pos)..d..str:sub(pos+#d+1,-1)
-    
+
     pos = pos + #d
-    
+
     return #d
   end
-  
+
   function file:flush() end
   function file:close() end
-  
+
   return file
 end
 
@@ -93,7 +93,7 @@ local header = "\80\75\3\4"..short(20)..char(2)..char(8)..short(8)..short(0)..sh
 
 local function writeFile(zipFile,fileName,fileData,modTime,extraField,fileComment,attributes)
   local fileOffset = zipFile:tell()
-  
+
   --[[
   Local file header:
     local file header signature     4 bytes  (0x04034b50)
@@ -113,10 +113,10 @@ local function writeFile(zipFile,fileName,fileData,modTime,extraField,fileCommen
   ]]
 
   --zipFile:write("\80\75\3\4") --local file header signature - 4 bytes - (0x04034b50)
-  
+
   --zipFile:write(short(20)) --version needed to extract - 2 bytes
   --2.0 - File is compressed using Deflate compression
-  
+
   --zipFile:write(char(2)..char(8)) --general purpose bit flag - 2 bytes
   --[[(For Methods 8 and 9 - Deflating)
     Bit 2  Bit 1
@@ -128,18 +128,18 @@ local function writeFile(zipFile,fileName,fileData,modTime,extraField,fileCommen
   --[[Bit 11: Language encoding flag (EFS).  If this bit is set,
     the filename and comment fields for this file
     MUST be encoded using UTF-8. (see APPENDIX D)]]
-  
+
   --zipFile:write(short(8)) --compression method - 2 bytes
   --8 - The file is Deflated
-  
+
   --zipFile:write(short(0)) --last mod file time - 2 bytes
   --Leave as zero, it doesn't worth calculating.
-  
+
   --zipFile:write(short(0)) --last mod file date - 2 bytes
   --Leave as zero, it doesn't worth calculating.
 
   zipFile:write(header)
-  
+
   local fileCRC32 = crc32(fileData)
   zipFile:write(long(fileCRC32)) --crc-32 - 4 bytes
   --crc32 of uncompressed file data.
@@ -160,13 +160,13 @@ local function writeFile(zipFile,fileName,fileData,modTime,extraField,fileCommen
     compressed size                 4 bytes
     uncompressed size               4 bytes
   ]]
-  
+
   zipFile:write("\80\75\7\8") --signature - 4 bytes - (0x08074b50)
   zipFile:write(long(fileCRC32)) --crc-32 - 4 bytes
   --crc32 of uncompressed file data.
   zipFile:write(long(#compressedData)) --compressed size - 4 bytes
   zipFile:write(long(#fileData)) --uncompressed size - 4 bytes
-  
+
   --Return file info, used when writing the centeral directory.
   return {
     fileOffset = fileOffset,
@@ -210,16 +210,16 @@ local function writeCenteralDirectory(zipFile,filesInfos)
     extra field (variable size)
     file comment (variable size)
   ]]
-  
+
   for _, fileInfo in pairs(filesInfos) do
-    
+
     zipFile:write("\80\75\1\2") --central file header signature - 4 bytes - (0x02014b50)
     --version made by - 2 bytes
     zipFile:write(char(63)) --Spec file version: 6.3.4
     zipFile:write(char(3)) --3 - UNIX
     zipFile:write(short(20)) --version needed to extract - 2 bytes
     --2.0 - File is compressed using Deflate compression
-    
+
     zipFile:write(char(2)..char(8)) --general purpose bit flag - 2 bytes
     --[[(For Methods 8 and 9 - Deflating)
       Bit 2  Bit 1
@@ -231,19 +231,19 @@ local function writeCenteralDirectory(zipFile,filesInfos)
     --[[Bit 11: Language encoding flag (EFS).  If this bit is set,
       the filename and comment fields for this file
       MUST be encoded using UTF-8. (see APPENDIX D)]]
-    
+
     zipFile:write(short(8)) --compression method - 2 bytes
     --8 - The file is Deflated
-    
+
     zipFile:write(short(0)) --last mod file time - 2 bytes
     --Leave as zero, it doesn't worth calculating.
-    
+
     zipFile:write(short(0)) --last mod file date - 2 bytes
     --Leave as zero, it doesn't worth calculating.
-    
+
     zipFile:write(long(fileInfo.fileCRC32)) --crc-32 - 4 bytes
     --crc32 of uncompressed file data.
-    
+
     zipFile:write(long(fileInfo.compressedSize)) --compressed size - 4 bytes
     zipFile:write(long(fileInfo.uncompressedSize)) --uncompressed size - 4 bytes
     zipFile:write(short(#fileInfo.fileName)) --file name length - 2 bytes
@@ -258,7 +258,7 @@ local function writeCenteralDirectory(zipFile,filesInfos)
     zipFile:write(fileInfo.comment) --file comment (variable size)
     centeralDirectorySize = centeralDirectorySize + 46 + #fileInfo.fileName + #fileInfo.extraField + #fileInfo.comment
   end
-  
+
   --Return centeral directory info
   return {
     offset = centeralDirectoryOffset,
@@ -270,7 +270,7 @@ end
 local function writeEndOfCenteralDirectory(zipFile,centeralDirectoryInfo,zipComment)
   --[[
   End of central directory record:
-  
+
     end of central dir signature    4 bytes  (0x06054b50)
     number of this disk             2 bytes
     number of the disk with the
@@ -286,7 +286,7 @@ local function writeEndOfCenteralDirectory(zipFile,centeralDirectoryInfo,zipComm
     .ZIP file comment length        2 bytes
     .ZIP file comment       (variable size)
   ]]
-  
+
   zipFile:write("\80\75\5\6") --end of central dir signature - 4 bytes - (0x06054b50)
   zipFile:write(short(0)) --number of this disk - 2 bytes
   zipFile:write(short(0)) --number of the disk with the start of the central directory - 2 bytes
@@ -295,7 +295,7 @@ local function writeEndOfCenteralDirectory(zipFile,centeralDirectoryInfo,zipComm
   zipFile:write(long(centeralDirectoryInfo.size)) --size of the central directory - 4 bytes
   zipFile:write(long(centeralDirectoryInfo.offset)) --offset of start of central directory with respect to the starting disk number - 4 bytes
   zipFile:write(short(zipComment and #zipComment or 0)) --.ZIP file comment length - 2 bytes
-  zipFile:write(zipComment or "") --.ZIP file comment (variable size) 
+  zipFile:write(zipComment or "") --.ZIP file comment (variable size)
 end
 
 --== User API ==--
@@ -304,18 +304,18 @@ local zapi = {}
 
 function zapi.newZipWriter(zipFile)
   zipFile = zipFile or newStringFile()
-  
+
   local filesInfos = {}
   local zipFinished = false
   local writer = {}
-  
+
   function writer.addFile(fileName,fileData,modTime,extraField,fileComment,attributes)
     if zipFinished then
       return error("The .ZIP file is finished !")
     end
     filesInfos[#filesInfos+1] = writeFile(zipFile,fileName,fileData,modTime,extraField,fileComment,attributes)
   end
-  
+
   function writer.finishZip(zipComment)
     if zipFinished then
       return error("The .ZIP file is already finished !")
@@ -325,11 +325,11 @@ function zapi.newZipWriter(zipFile)
     zipFinished = true
     return zipFile
   end
-  
+
   return writer
 end
 
-function zapi.createZip(path, zipFile)  
+function zapi.createZip(path, zipFile)
   local writer = zapi.newZipWriter(zipFile)
   local function index(dir)
     local dirInfo = love.filesystem.getInfo(dir)
@@ -352,14 +352,14 @@ function zapi.createZip(path, zipFile)
   index(path)
 
   local zipData = writer.finishZip()
-  
+
   if not zipFile then
     return true, zipData:read()
   end
-  
+
   zipFile:flush()
   zipFile:close()
-  
+
   return true
 end
 
@@ -374,7 +374,7 @@ function zapi.writeZip(path,destination)
   if path:sub(-1,-1) == "/" then
     path = path:sub(1,-2)
   end
-  
+
   return zapi.createZip(path, zipFile)
 end
 
