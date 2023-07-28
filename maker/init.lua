@@ -2,6 +2,7 @@ local lfs = love.filesystem
 local sav = lfs.getSaveDirectory()
 local src = lfs.getSource()
 local lib = (...)
+lib = lib:gsub('%.init$', '')
 local zapi = require(lib..".zapi")
 local parser = require(lib..".minify")
 

@@ -5,3 +5,5 @@ fuser/love-11.3/win32.zip
 fuser/love-11.3/macos.zip
 fuser/love-11.3/linux.zip
 fuser/extractor.lua
+love.exe.lnk
+example.bat
