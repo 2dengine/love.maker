@@ -102,7 +102,10 @@ function maker.newBuild(gamepath)
           if mode == "minify" then
             data = minify(data, full, "minify")
           elseif mode == "dump" then
-            data = string.dump(loadstring(data, full), true)
+            local func = loadstring(data, full)
+            if func then
+              data = string.dump(func, true)
+            end
           end
         end
         if path:sub(1, 1) == "/" then path = path:sub(2,-1) end
