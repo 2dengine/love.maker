@@ -149,12 +149,12 @@ function maker.newBuild(gamepath)
     end
   end
 
-  build.base = src
-  build.prefix = nil
-  if gamepath then
+  --build.base = src
+  --build.prefix = nil
+  --if gamepath then
     build.base = sav
-    build.prefix = build:copy(gamepath)
-  end
+    build.prefix = build:copy(gamepath or src)
+  --end
   build:scan()
 
   return build
