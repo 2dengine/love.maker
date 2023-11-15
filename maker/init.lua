@@ -1,10 +1,11 @@
-local lfs = love.filesystem
-local sav = lfs.getSaveDirectory()
-local src = lfs.getSource()
 local lib = (...)
 lib = lib:gsub('%.init$', '')
 local zapi = require(lib..".zapi")
 local parser = require(lib..".minify")
+local urfs = require(lib..".urfs")
+
+local lfs = love.filesystem
+local source = lfs.getSource()
 
 local minify = function(s)
   local ast = parser.parse(s)
@@ -18,36 +19,18 @@ function maker.setExtensions(...)
   maker.ext = { ... }
 end
 
-function maker.newBuild(gamepath)
+function maker.newBuild(gamepath)  
+  gamepath = (gamepath or source)..'/'
+  gamepath = gamepath:gsub('\\', '/')
+  gamepath = gamepath:gsub('//', '/')
+  
+  local point = os.tmpname():gsub('[/%.]', '')
+  point = point:gsub('\\', '/')
+  point = point:gsub('^/', '')
+  urfs.mount(gamepath, point)
+  
   local build = {}
   local files = { [""] = true }
-
-  function build:copy(s)
-    -- generate a temporary folder
-    local tmp = os.tmpname():gsub('[/%.]', '').."/"
-    tmp = tmp:gsub('\\', '/')
-    local d = sav..tmp
-    local o = love.system.getOS()
-    local cmd
-    if o == 'Windows' then
-      cmd = string.format('xcopy "%s" "%s" /e /h /d /y', s:gsub('/', '\\'), d:gsub('/', '\\'))
-    else
-      cmd = string.format('cp -R "%s" "%s"', s, d)
-    end
-    --print(cmd)
-    -- execute copy
-    local handle = io.popen(cmd)
-    handle:read("*a")
-    handle:close()
-    return tmp
-  end
-
-  function build:cleanup(tmp)
-    build:recursive(tmp, '', function(path, full)
-      lfs.remove(full)
-    end)
-    lfs.remove(tmp)
-  end
 
   function build:allow(path)
     files[path] = true
@@ -70,31 +53,40 @@ function maker.newBuild(gamepath)
   end
 
   function build:recursive(prefix, path, func)
-    local full = prefix..path
-    if lfs.getInfo(full, "directory") then
+    local full = (prefix..'/'..path):gsub('//', '/')
+    if lfs.getInfo(full, 'directory') then
       for _, item in pairs(lfs.getDirectoryItems(full)) do
-        build:recursive(prefix, path.."/"..item, func)
+        build:recursive(prefix, path..'/'..item, func)
       end
     end
-    if lfs.getRealDirectory(full) == build.base then
-      func(path, full)
-    end
+    --if lfs.getRealDirectory(full) == build.base then
+      func(full, path)
+    --end
   end
 
-  function build:save(dest, comment, mode)
-    local tmp = os.tmpname():gsub('[/%.]', '')
-    tmp = tmp:gsub('\\', '/')
-    local file, err1 = lfs.newFile(tmp, "w")
-    if not file then
-      return false, err1
+  function build:scan()
+    local allowed = maker.ext or {}
+    for _, v in ipairs(allowed) do
+      allowed[v:lower()] = true
     end
-    local prefix = build.prefix
+    build:recursive(point, '', function(full, path)
+     if #allowed > 0 then
+        local ext = path:match("^.+%.(.+)$")
+        if not ext or allowed[ext:lower()] then
+          files[path] = true
+        end
+      end
+    end)
+  end
+  
+  function build:save(dest, comment, mode)
+    local file, err = io.open(dest, 'wb')
+    if not file then
+      return false, err
+    end
     local zip = zapi.newZipWriter(file)
     for path in pairs(files) do
-      local full = path
-      if prefix then
-        full = (prefix..path):gsub('//', '/')
-      end
+      local full = ('/'..point..path):gsub('//', '/')
       local info = lfs.getInfo(full)
       if info and info.type == "file" then
         local data = lfs.read(full)
@@ -115,53 +107,20 @@ function maker.newBuild(gamepath)
     end
     zip.finishZip(comment)
     file:flush()
-    local size = file:getSize()
+    --local size = file:getSize()
+    local size = file:seek('end')
     file:close()
-    os.remove(dest)
-    local ok, err2 = os.rename(sav..'/'..tmp, dest)
-    os.remove(sav..'/'..tmp)
-
-    if build.prefix then
-      build:cleanup(build.prefix)
-      build.prefix = nil
-    end
-
-    return ok, err2 or size
+    
+    return true, size
   end
 
-  function build:scan()
-    local prefix = build.prefix or ''
-    local allowed = maker.ext
-    if allowed and #allowed > 0 then
-      for _, v in ipairs(allowed) do
-        allowed[v:lower()] = true
-      end
-      build:recursive(prefix, '', function(path, full)
-        local ext = path:match("^.+%.(.+)$")
-        if not ext or allowed[ext:lower()] then
-          files[path] = true
-        end
-      end)
-    else
-      build:recursive(prefix, '', function(path, full)
-        files[path] = true
-      end)
-    end
-  end
-
-  --build.base = src
-  --build.prefix = nil
-  --if gamepath then
-    build.base = sav
-    build.prefix = build:copy(gamepath or src)
-  --end
   build:scan()
 
   return build
 end
 
 function maker.getComment(path)
-  path = path or src
+  path = path or source
   local file, err = io.open(path, "rb")
   if not file then
     return nil, err

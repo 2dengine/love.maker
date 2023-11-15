@@ -92,7 +92,8 @@ end
 local header = "\80\75\3\4"..short(20)..char(2)..char(8)..short(8)..short(0)..short(0)
 
 local function writeFile(zipFile,fileName,fileData,modTime,extraField,fileComment,attributes)
-  local fileOffset = zipFile:tell()
+  --local fileOffset = zipFile:tell()
+  local fileOffset = zipFile:seek('cur')
 
   --[[
   Local file header:
@@ -183,7 +184,8 @@ end
 
 local function writeCenteralDirectory(zipFile,filesInfos)
   local centeralDirectorySize = 0
-  local centeralDirectoryOffset = zipFile:tell()
+  --local centeralDirectoryOffset = zipFile:tell()
+  local centeralDirectoryOffset = zipFile:seek('cur')
 
   --[[
   Central directory structure:
