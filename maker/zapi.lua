@@ -237,10 +237,26 @@ local function writeCenteralDirectory(zipFile,filesInfos)
     zipFile:write(short(8)) --compression method - 2 bytes
     --8 - The file is Deflated
 
-    zipFile:write(short(0)) --last mod file time - 2 bytes
-    --Leave as zero, it doesn't worth calculating.
+    -- thanks to: https://github.com/TomTasche
+    local d = os.date('*t', fileInfo.modTime)
 
-    zipFile:write(short(0)) --last mod file date - 2 bytes
+    local hour = d.hour
+    hour = lshift(hour, 6)
+    hour = bor(hour, d.min)
+    hour = lshift(hour, 5)
+    hour = bor(hour, d.sec/2)
+    
+    zipFile:write(short(hour)) --last mod file time - 2 bytes
+    --Leave as zero, it doesn't worth calculating.
+    
+    local date = math.max(d.year - 1980, 0)
+    date = lshift(date, 4)
+    date = bor(date, d.month)
+    date = lshift(date, 5)
+    date = bor(date, d.day)
+    
+    zipFile:write(short(date)) --last mod file date - 2 bytes
+    --zipFile:write(short(0)) --last mod file date - 2 bytes
     --Leave as zero, it doesn't worth calculating.
 
     zipFile:write(long(fileInfo.fileCRC32)) --crc-32 - 4 bytes
