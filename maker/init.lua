@@ -27,11 +27,10 @@ function maker.newBuild(gamepath)
   local point = os.tmpname():gsub('[/%.]', '')
   point = point:gsub('\\', '/')
   point = point:gsub('^/', '')
-  urfs.mount(gamepath, point)
   
   local build = {}
   local files = { [""] = true }
-
+  
   function build:allow(path)
     files[path] = true
   end
@@ -65,18 +64,22 @@ function maker.newBuild(gamepath)
   end
 
   function build:scan()
+    urfs.mount(gamepath, point)
     local allowed = maker.ext or {}
     for _, v in ipairs(allowed) do
       allowed[v:lower()] = true
     end
     build:recursive(point, '', function(full, path)
-     if #allowed > 0 then
+      if #allowed > 0 then
         local ext = path:match("^.+%.(.+)$")
         if not ext or allowed[ext:lower()] then
           files[path] = true
         end
+      else
+        files[path] = true
       end
     end)
+    urfs.unmount(gamepath)
   end
   
   function build:save(dest, comment, mode)
@@ -84,6 +87,7 @@ function maker.newBuild(gamepath)
     if not file then
       return false, err
     end
+    urfs.mount(gamepath, point)
     local zip = zapi.newZipWriter(file)
     for path in pairs(files) do
       local full = ('/'..point..path):gsub('//', '/')
@@ -110,6 +114,7 @@ function maker.newBuild(gamepath)
     local size = file:seek('end')
     file:close()
     
+    urfs.unmount(gamepath)
     return true, size
   end
 
