@@ -1,9 +1,9 @@
 # love.maker
 love.maker is a library that can minify, compile and compress your LÖVE2D project folder.
-love.maker uses URFS which provides access to the entire file system using absolute paths.
+This library includes URFS which provides access to the entire file system using absolute paths.
 Lua script files are compiled using the "string.dump" function and are only compatible with the same version of LÖVE2D or LuaJIT.
 Empty directories are not included in the generated .love project file.
-love.maker was designed specifically for the LÖVE2D framework.
+This library was designed specifically for the LÖVE2D framework.
 
 ## Example
 
