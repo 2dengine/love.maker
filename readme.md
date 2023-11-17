@@ -12,7 +12,7 @@ love.maker = require("maker")
 love.maker.setExtensions('lua', 'png', 'txt') -- include only the specifed extensions
 
 local build = love.maker.newBuild("C://path/to/project/folder/")
-build:ignore('/readme.txt') -- ignore specific files or folders
+build:ignore('/readme.txt') -- ignore a specific file
 build:ignoreMatch('^/.git') -- ignore based on pattern matching
 build:allow("/images/exception.jpg") -- whitelist a specific file
 
