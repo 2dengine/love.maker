@@ -8,23 +8,25 @@ This library was designed specifically for the LÖVE2D framework.
 ## Example
 
 ```Lua
--- destination path
-local sav = love.filesystem.getSaveDirectory()
-local proj = love.filesystem.getIdentity()
-
 love.maker = require("maker")
-local build = love.maker.newBuild("C://path/to/project/folder/")
+love.maker.setExtensions('lua', 'png', 'txt') -- include only the specifed extensions
 
+local build = love.maker.newBuild("C://path/to/project/folder/")
 build:ignore('/readme.txt') -- ignore specific files or folders
 build:ignoreMatch('^/.git') -- ignore based on pattern matching
 build:allow("/images/exception.jpg") -- whitelist a specific file
-build:save(dest, "DEMO") -- absolute path and comment/stamp
 
-build:save(sav.."/"..proj..".love")
+-- destination path
+local sav = love.filesystem.getSaveDirectory()
+local proj = love.filesystem.getIdentity()
+local dest = sav.."/"..proj..".love"
+
+build:save(dest, "DEMO") -- absolute path and comment/stamp
+local comment = love.maker.getComment(dest) -- 
 ```
 
 ## Credits
-Library by 2dengine LLC (MIT License) https://github.com/2dengine/love.maker
+Source code by 2dengine LLC (MIT License) https://github.com/2dengine/love.maker
 
 Compression by Rami Sabbagh (MIT License) https://github.com/Rami-Sabbagh/LoveZip
 
