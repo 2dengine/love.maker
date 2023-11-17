@@ -21,8 +21,8 @@ local sav = love.filesystem.getSaveDirectory()
 local proj = love.filesystem.getIdentity()
 local dest = sav.."/"..proj..".love"
 
-build:save(dest, "DEMO") -- absolute path and comment/stamp
-local comment = love.maker.getComment(dest) -- 
+build:save(dest, "DEMO") -- build the .love project file
+local comment = love.maker.getComment(dest)
 ```
 
 ## Credits
