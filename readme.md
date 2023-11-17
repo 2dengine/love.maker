@@ -14,6 +14,12 @@ local proj = love.filesystem.getIdentity()
 
 love.maker = require("maker")
 local build = love.maker.newBuild("C://path/to/project/folder/")
+
+build:ignore('/readme.txt') -- ignore specific files or folders
+build:ignoreMatch('^/.git') -- ignore based on pattern matching
+build:allow("/images/exception.jpg") -- whitelist a specific file
+build:save(dest, "DEMO") -- absolute path and comment/stamp
+
 build:save(sav.."/"..proj..".love")
 ```
 
