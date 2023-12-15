@@ -20,13 +20,19 @@ function maker.setExtensions(...)
 end
 
 function maker.newBuild(gamepath)  
-  gamepath = (gamepath or source)..'/'
-  gamepath = gamepath:gsub('\\', '/')
-  gamepath = gamepath:gsub('//', '/')
+  gamepath = (gamepath or source):gsub('\\', '/')
   
-  local point = os.tmpname():gsub('[/%.]', '')
-  point = point:gsub('\\', '/')
-  point = point:gsub('^/', '')
+  local point = os.tmpname():gsub('[/%.]', ''):gsub('\\', '/'):gsub('^/', '')
+
+  urfs.mount(gamepath, point)
+  if #lfs.getDirectoryItems(point) == 0 then
+    -- try without the trailing slash
+    urfs.unmount(gamepath)
+    gamepath = gamepath:gsub('/$', '')
+    urfs.mount(gamepath, point)
+  end
+  assert(#lfs.getDirectoryItems(point) > 0, 'The mounted directory is empty:'..gamepath)
+  urfs.unmount(gamepath)
   
   local build = {}
   local files = { [""] = true }
@@ -113,7 +119,6 @@ function maker.newBuild(gamepath)
     --local size = file:getSize()
     local size = file:seek('end')
     file:close()
-    
     urfs.unmount(gamepath)
     return true, size
   end
