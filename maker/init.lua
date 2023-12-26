@@ -1,133 +1,40 @@
 local lib = (...)
 lib = lib:gsub('%.init$', '')
-local zapi = require(lib..".zapi")
-local parser = require(lib..".minify")
-local urfs = require(lib..".urfs")
+local build = require(lib..".build")
 
 local lfs = love.filesystem
 local source = lfs.getSource()
+source = source:gsub('\\', '/')
 
-local minify = function(s)
-  local ast = parser.parse(s)
-  parser.minify(ast)
-  return parser.toLua(ast)
-end
-
+--- The "maker" module is used to create .love files or read comments from existing .love files.
+-- @module maker
+-- @alias maker
 local maker = {}
 
+--- Sets the file extensions to be included in the .love file.
+-- @tparam arguments ... List of file extensions
 function maker.setExtensions(...)
   maker.ext = { ... }
 end
 
+--- Creates a new build from a specified project directory.
+-- @tparam string gamepath Absolute path to your project
+-- @treturn build New build object
 function maker.newBuild(gamepath)  
   gamepath = (gamepath or source):gsub('\\', '/')
   
-  local point = os.tmpname():gsub('[/%.]', ''):gsub('\\', '/'):gsub('^/', '')
-
-  urfs.mount(gamepath, point)
-  if #lfs.getDirectoryItems(point) == 0 then
-    -- try without the trailing slash
-    urfs.unmount(gamepath)
-    gamepath = gamepath:gsub('/$', '')
-    urfs.mount(gamepath, point)
-  end
-  assert(#lfs.getDirectoryItems(point) > 0, 'The mounted directory is empty:'..gamepath)
-  urfs.unmount(gamepath)
-  
-  local build = {}
-  local files = { [""] = true }
-  
-  function build:allow(path)
-    files[path] = true
-  end
-
-  function build:isAllowed(path)
-    return files[path] == true
-  end
-
-  function build:ignore(path)
-    files[path] = nil
-  end
-
-  function build:ignoreMatch(pattern)
-    for item in pairs(files) do
-      if item:match(pattern) then
-        files[item] = nil
-      end
-    end
-  end
-
-  function build:recursive(prefix, path, func)
-    local full = (prefix..'/'..path):gsub('//', '/')
-    if lfs.getInfo(full, 'directory') then
-      for _, item in pairs(lfs.getDirectoryItems(full)) do
-        build:recursive(prefix, path..'/'..item, func)
-      end
-    end
-    --if lfs.getRealDirectory(full) == build.base then
-      func(full, path)
-    --end
-  end
-
-  function build:scan()
-    urfs.mount(gamepath, point)
-    local allowed = maker.ext or {}
-    for _, v in ipairs(allowed) do
-      allowed[v:lower()] = true
-    end
-    build:recursive(point, '', function(full, path)
-      if #allowed > 0 then
-        local ext = path:match("^.+%.(.+)$")
-        if not ext or allowed[ext:lower()] then
-          files[path] = true
-        end
-      else
-        files[path] = true
-      end
-    end)
-    urfs.unmount(gamepath)
+  local point = ''
+  if gamepath and gamepath:gsub('/$', '') ~= source:gsub('/$', '') then
+    point = os.tmpname():gsub('[/%.]', ''):gsub('\\', '/'):gsub('^/', '')
   end
   
-  function build:save(dest, comment, mode)
-    local file, err = io.open(dest, 'wb')
-    if not file then
-      return false, err
-    end
-    urfs.mount(gamepath, point)
-    local zip = zapi.newZipWriter(file)
-    for path in pairs(files) do
-      local full = ('/'..point..path):gsub('//', '/')
-      local info = lfs.getInfo(full)
-      if info and info.type == "file" then
-        local data = lfs.read(full)
-        if full:match("%.lua$") or full:match("%.ser$") then
-          if mode == "minify" then
-            data = minify(data, full, "minify")
-          elseif mode == "dump" then
-            local func, msg = loadstring(data, full)
-            assert(func, msg)
-            data = string.dump(func, true)
-          end
-        end
-        if path:sub(1, 1) == "/" then path = path:sub(2,-1) end
-        if path:sub(-1, -1) == "/" then path = path:sub(1,-2) end
-        zip.addFile(path, data, info.modtime)
-      end
-    end
-    zip.finishZip(comment)
-    file:flush()
-    --local size = file:getSize()
-    local size = file:seek('end')
-    file:close()
-    urfs.unmount(gamepath)
-    return true, size
-  end
-
-  build:scan()
-
-  return build
+  return build(maker, gamepath, point)
 end
 
+--- Returns the comment written to an existing .love file (ZIP file comment).
+-- @tparam string path Absolute path to some .love file
+-- @treturn string Previously saved comment or nil
+-- @see build:save
 function maker.getComment(path)
   path = path or source
   local file, err = io.open(path, "rb")
