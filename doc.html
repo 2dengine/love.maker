@@ -1,0 +1,159 @@
+<html>
+<head>
+<style>
+body { background-color:#fff; padding: 0; margin: 0; }
+table { border:1px solid #ccc; width:100%; padding:1em; background-color:#eee; }
+th { border-bottom:1px dashed #ccc; text-align:left; padding-top:0.5em; }
+td { vertical-align: top; }
+tr td:first-of-type { width:4em; white-space:nowrap; }
+.arg { color:#c00; }
+.type { color:#00f; }
+.meta, th { color:#aaa; }
+.page { clear: both; }
+.page, .menu, .cont { box-sizing:border-box; display:block; margin: 0; }
+.menu, .cont { overflow-x:hidden; overflow-y:auto; height: 100%; max-height: 100%; padding: 1em; }
+.menu { float:left; width:25%; background-color:#eee; border-right:1px solid #ccc; }
+.cont { float:right; width:75%; }
+.see { font-size: 0.9em; padding: 0.5em; }
+h1,h2,h3 { padding: 1em 0 0 0; margin: 0; }
+ul { padding: 0.5 1em; margin: 0; }
+hr { border-top: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<div class='page'>
+<div class='cont'>
+<h1>love.maker</h1>
+love.maker is a library that can minify, compile and compress your LÖVE2D project folder.<br>Developed and maintained by <a href="https://2dengine.com">2dengine.com</a>
+<br>Last updated on January 04, 2024<br><br>
+<h2 id='maker'>maker</h2>
+The "maker" module is used to create .love files or read comments from existing .love files.<br>
+<table>
+<tr><td><a href='#maker.getComment'>maker.getComment</a>(<span class='arg'>path</span>)</td><td>Returns the comment written to an existing .love file (ZIP file comment).</td></tr>
+<tr><td><a href='#maker.newBuild'>maker.newBuild</a>(<span class='arg'>gamepath</span>)</td><td>Creates a new build from a specified project directory.</td></tr>
+<tr><td><a href='#maker.setExtensions'>maker.setExtensions</a>(<span class='arg'>...</span>)</td><td>Sets the file extensions to be included in the .love file.</td></tr>
+</table>
+<h3 id='maker.getComment'>maker.getComment(<span class='arg'>path</span>)</h3>
+Returns the comment written to an existing .love file (ZIP file comment).
+<table>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>path</b><br>
+Absolute path to some .love file</td></tr>
+<tr><th></td><th>Returns</th></tr>
+<tr><td><a class='type'>string</a></td>
+<td>Previously saved comment or nil</td></tr>
+</table>
+<div class='see'>See: <a href='#build:save'>build:save</a></div>
+<h3 id='maker.newBuild'>maker.newBuild(<span class='arg'>gamepath</span>)</h3>
+Creates a new build from a specified project directory.
+<table>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>gamepath</b><br>
+Absolute path to your project</td></tr>
+<tr><th></td><th>Returns</th></tr>
+<tr><td><a href='#build' class='type'>build</a></td>
+<td>New build object</td></tr>
+</table>
+<h3 id='maker.setExtensions'>maker.setExtensions(<span class='arg'>...</span>)</h3>
+Sets the file extensions to be included in the .love file.
+<table>
+<tr><td><a class='type'>arguments</a></td><td><b class='arg'>...</b><br>
+List of file extensions</td></tr>
+</table>
+<br><br><br><h2 id='build'>build</h2>
+The "build" object is used to customize what is included or excluded in the generated .love file.<br>
+<table>
+<tr><td><a href='#build:allow'>build:allow</a>(<span class='arg'>path</span>)</td><td>Marks a specific file for inclusion.</td></tr>
+<tr><td><a href='#build:ignore'>build:ignore</a>(<span class='arg'>path</span>)</td><td>Marks a specific path for exclusion.</td></tr>
+<tr><td><a href='#build:ignoreMatch'>build:ignoreMatch</a>(<span class='arg'>pattern</span>)</td><td>Marks paths for exclusion based on pattern matching.</td></tr>
+<tr><td><a href='#build:isAllowed'>build:isAllowed</a>(<span class='arg'>path</span>)</td><td>Checks if the file path is included.</td></tr>
+<tr><td><a href='#build:recursive'>build:recursive</a>(<span class='arg'>prefix</span>, <span class='arg'>path</span>, <span class='arg'>func</span>)</td><td>This is an internal function.</td></tr>
+<tr><td><a href='#build:save'>build:save</a>(<span class='arg'>dest</span>, <span class='arg'>comment</span>, <span class='arg'>mode</span>)</td><td>Packages the project into a .love file.  The "mode" argument is used to optionally minify or compile the included .lua files.</td></tr>
+<tr><td><a href='#build:scan'>build:scan</a>()</td><td>This is an internal function.</td></tr>
+<tr><td><a href='#build:write'>build:write</a>(<span class='arg'>path</span>, <span class='arg'>content</span>)</td><td>Writes a virtual file that will be included in the builds.</td></tr>
+</table>
+<h3 id='build:allow'>build:allow(<span class='arg'>path</span>)</h3>
+Marks a specific file for inclusion.
+<table>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>path</b><br>
+Relative path</td></tr>
+</table>
+<div class='see'>See: <a href='#build:isAllowed'>build:isAllowed</a></div>
+<h3 id='build:ignore'>build:ignore(<span class='arg'>path</span>)</h3>
+Marks a specific path for exclusion.
+<table>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>path</b><br>
+Relative path</td></tr>
+</table>
+<div class='see'>See: <a href='#build:ignoreMatch'>build:ignoreMatch</a></div>
+<h3 id='build:ignoreMatch'>build:ignoreMatch(<span class='arg'>pattern</span>)</h3>
+Marks paths for exclusion based on pattern matching.
+<table>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>pattern</b><br>
+Pattern matching expression</td></tr>
+</table>
+<div class='see'>See: <a href='#build:ignore'>build:ignore</a></div>
+<h3 id='build:isAllowed'>build:isAllowed(<span class='arg'>path</span>)</h3>
+Checks if the file path is included.
+<table>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>path</b><br>
+Relative file path</td></tr>
+<tr><th></td><th>Returns</th></tr>
+<tr><td><a class='type'>boolean</a></td>
+<td>True if the file will be included</td></tr>
+</table>
+<h3 id='build:recursive'>build:recursive(<span class='arg'>prefix</span>, <span class='arg'>path</span>, <span class='arg'>func</span>)</h3>
+This is an internal function.
+<table>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>prefix</b><br>
+Path prefix</td></tr>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>path</b><br>
+Relative path</td></tr>
+<tr><td><a class='type'>function</a></td><td><b class='arg'>func</b><br>
+Callback function</td></tr>
+</table>
+<h3 id='build:save'>build:save(<span class='arg'>dest</span>, <span class='arg'>comment</span>, <span class='arg'>mode</span>)</h3>
+Packages the project into a .love file.  The "mode" argument is used to optionally minify or compile the included .lua files.
+<table>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>dest</b><br>
+Absolute path where the generated .love file is saved</td></tr>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>comment</b> (optional)<br>
+String comment appended to the .love file</td></tr>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>mode</b> (optional)<br>
+Processing mode: "none", "minify" or "dump"</td></tr>
+<tr><th></td><th>Returns</th></tr>
+<tr><td><a class='type'>boolean</a></td>
+<td>True if the .love file was saved successfully</td></tr>
+<tr><td><a class='type'>number</a></td>
+<td>Number of bytes written or an error message</td></tr>
+</table>
+<h3 id='build:scan'>build:scan()</h3>
+This is an internal function.
+<h3 id='build:write'>build:write(<span class='arg'>path</span>, <span class='arg'>content</span>)</h3>
+Writes a virtual file that will be included in the builds.
+<table>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>path</b><br>
+File path</td></tr>
+<tr><td><a class='type'>string</a></td><td><b class='arg'>content</b><br>
+Textual content</td></tr>
+</table>
+<br><br><br></div>
+<div class='menu'>
+<h3><a href='#maker'>maker</a></h3>
+<ul>
+<li><a href='#maker.getComment'>getComment</a><br>
+<li><a href='#maker.newBuild'>newBuild</a><br>
+<li><a href='#maker.setExtensions'>setExtensions</a><br>
+</ul>
+<h3><a href='#build'>build</a></h3>
+<ul>
+<li><a href='#build:allow'>allow</a><br>
+<li><a href='#build:ignore'>ignore</a><br>
+<li><a href='#build:ignoreMatch'>ignoreMatch</a><br>
+<li><a href='#build:isAllowed'>isAllowed</a><br>
+<li><a href='#build:recursive'>recursive</a><br>
+<li><a href='#build:save'>save</a><br>
+<li><a href='#build:scan'>scan</a><br>
+<li><a href='#build:write'>write</a><br>
+</ul>
+</div>
+</div>
+</html>

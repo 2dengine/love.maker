@@ -11,14 +11,13 @@ local minify = function(s)
   return parser.toLua(ast)
 end
 
-local sav = love.filesystem.getSaveDirectory()
-
 return function(maker, gamepath, point)
   --- The "build" object is used to customize what is included or excluded in the generated .love file.
   -- @module build
   -- @alias build
   local build = {}
   local files = { [""] = true }
+  local written = {}
 
   --- Checks if the file path is included.
   -- @tparam string path Relative file path
@@ -52,6 +51,17 @@ return function(maker, gamepath, point)
     end
   end
   
+  --- Writes a virtual file that will be included in the builds.
+  -- @tparam string path File path
+  -- @tparam string content Textual content
+  function build:write(path, content)
+    path = '/'..path:gsub('^/', '')
+    local full = (point..'/'..path):gsub('//', '/')
+    assert(not lfs.getInfo(full , 'directory'), 'Cannot write to directory')
+    written[path] = content
+    files[path] = true
+  end
+  
   --- This is an internal function.
   -- @tparam string prefix Path prefix
   -- @tparam string path Relative path
@@ -63,6 +73,7 @@ return function(maker, gamepath, point)
         build:recursive(prefix, path..'/'..item, func)
       end
     end
+    local sav = lfs.getSaveDirectory()
     if lfs.getRealDirectory(full) ~= sav then
       func(full, path)
     end
@@ -73,7 +84,7 @@ return function(maker, gamepath, point)
     if point ~= '' then
       urfs.mount(gamepath, point)
       assert(#lfs.getDirectoryItems(point) > 0, 'The mounted directory is empty:'..gamepath)
-      urfs.unmount(gamepath, point)
+      --urfs.unmount(gamepath, point)
     end
     local allowed = maker.ext or {}
     for _, v in ipairs(allowed) do
@@ -111,22 +122,29 @@ return function(maker, gamepath, point)
     end
     local zip = zapi.newZipWriter(file)
     for path in pairs(files) do
-      local full = ('/'..point..path):gsub('//', '/')
-      local info = lfs.getInfo(full)
-      if info and info.type == "file" then
-        local data = lfs.read(full)
-        if full:match("%.lua$") or full:match("%.ser$") then
-          if mode == "minify" then
-            data = minify(data, full, "minify")
-          elseif mode == "dump" then
-            local func, msg = loadstring(data, full)
-            assert(func, msg)
-            data = string.dump(func, true)
+      local data = written[path]
+      local modified
+      if not data then
+        local full = ('/'..point..path):gsub('//', '/')
+        local info = lfs.getInfo(full)
+        if info and info.type == "file" then
+          data = lfs.read(full)
+          modified = info.modtime
+          if full:match("%.lua$") or full:match("%.ser$") then
+            if mode == "minify" then
+              data = minify(data, full, "minify")
+            elseif mode == "dump" then
+              local func, msg = loadstring(data, full)
+              assert(func, msg)
+              data = string.dump(func, true)
+            end
           end
         end
+      end
+      if data then
         if path:sub(1, 1) == "/" then path = path:sub(2,-1) end
         if path:sub(-1, -1) == "/" then path = path:sub(1,-2) end
-        zip.addFile(path, data, info.modtime)
+        zip.addFile(path, data, modified)
       end
     end
     zip.finishZip(comment)
