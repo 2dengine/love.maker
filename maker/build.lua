@@ -55,8 +55,8 @@ return function(maker, gamepath, point)
   -- @tparam string path File path
   -- @tparam string content Textual content
   function build:write(path, content)
-    path = '/'..path:gsub('^/', '')
-    local full = (point..'/'..path):gsub('//', '/')
+    --path = '/'..path:gsub('^/', '')
+    local full = ('/'..point..'/'..path):gsub('//', '/')
     assert(not lfs.getInfo(full , 'directory'), 'Cannot write to directory')
     written[path] = content
     files[path] = true
@@ -125,7 +125,7 @@ return function(maker, gamepath, point)
       local data = written[path]
       local modified
       if not data then
-        local full = ('/'..point..path):gsub('//', '/')
+        local full = ('/'..point..'/'..path):gsub('//', '/')
         local info = lfs.getInfo(full)
         if info and info.type == "file" then
           data = lfs.read(full)
