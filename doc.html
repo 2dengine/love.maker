@@ -25,7 +25,7 @@ hr { border-top: 1px solid #ccc; }
 <div class='cont'>
 <h1>love.maker</h1>
 love.maker is a library that can minify, compile and compress your LÖVE2D project folder.<br>Developed and maintained by <a href="https://2dengine.com">2dengine.com</a>
-<br>Last updated on January 04, 2024<br><br>
+<br>Last updated on September 13, 2024<br><br>
 <h2 id='maker'>maker</h2>
 The "maker" module is used to create .love files or read comments from existing .love files.<br>
 <table>
@@ -66,9 +66,9 @@ The "build" object is used to customize what is included or excluded in the gene
 <tr><td><a href='#build:ignoreMatch'>build:ignoreMatch</a>(<span class='arg'>pattern</span>)</td><td>Marks paths for exclusion based on pattern matching.</td></tr>
 <tr><td><a href='#build:isAllowed'>build:isAllowed</a>(<span class='arg'>path</span>)</td><td>Checks if the file path is included.</td></tr>
 <tr><td><a href='#build:recursive'>build:recursive</a>(<span class='arg'>prefix</span>, <span class='arg'>path</span>, <span class='arg'>func</span>)</td><td>This is an internal function.</td></tr>
-<tr><td><a href='#build:save'>build:save</a>(<span class='arg'>dest</span>, <span class='arg'>comment</span>, <span class='arg'>mode</span>)</td><td>Packages the project into a .love file.  The "mode" argument is used to optionally minify or compile the included .lua files.</td></tr>
+<tr><td><a href='#build:save'>build:save</a>(<span class='arg'>dest</span>, <span class='arg'>comment</span>, <span class='arg'>mode</span>)</td><td>Packages the project into a .love file.  The "mode" argument is used to optionally minify or compile the included .lua files.  Empty directories are not included in the generated .love file.</td></tr>
 <tr><td><a href='#build:scan'>build:scan</a>()</td><td>This is an internal function.</td></tr>
-<tr><td><a href='#build:write'>build:write</a>(<span class='arg'>path</span>, <span class='arg'>content</span>)</td><td>Writes a virtual file that will be included in the builds.</td></tr>
+<tr><td><a href='#build:write'>build:write</a>(<span class='arg'>path</span>, <span class='arg'>content</span>)</td><td>Adds a file to the build from string contents.  Replaces any files within the build located in the same path.</td></tr>
 </table>
 <h3 id='build:allow'>build:allow(<span class='arg'>path</span>)</h3>
 Marks a specific file for inclusion.
@@ -111,7 +111,7 @@ Relative path</td></tr>
 Callback function</td></tr>
 </table>
 <h3 id='build:save'>build:save(<span class='arg'>dest</span>, <span class='arg'>comment</span>, <span class='arg'>mode</span>)</h3>
-Packages the project into a .love file.  The "mode" argument is used to optionally minify or compile the included .lua files.
+Packages the project into a .love file.  The "mode" argument is used to optionally minify or compile the included .lua files.  Empty directories are not included in the generated .love file.
 <table>
 <tr><td><a class='type'>string</a></td><td><b class='arg'>dest</b><br>
 Absolute path where the generated .love file is saved</td></tr>
@@ -128,12 +128,12 @@ Processing mode: "none", "minify" or "dump"</td></tr>
 <h3 id='build:scan'>build:scan()</h3>
 This is an internal function.
 <h3 id='build:write'>build:write(<span class='arg'>path</span>, <span class='arg'>content</span>)</h3>
-Writes a virtual file that will be included in the builds.
+Adds a file to the build from string contents.  Replaces any files within the build located in the same path.
 <table>
 <tr><td><a class='type'>string</a></td><td><b class='arg'>path</b><br>
 File path</td></tr>
 <tr><td><a class='type'>string</a></td><td><b class='arg'>content</b><br>
-Textual content</td></tr>
+File contents</td></tr>
 </table>
 <br><br><br></div>
 <div class='menu'>

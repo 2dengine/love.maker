@@ -51,9 +51,10 @@ return function(maker, gamepath, point)
     end
   end
   
-  --- Writes a virtual file that will be included in the builds.
+  --- Adds a file to the build from string contents.
+  -- Replaces any files within the build located in the same path.
   -- @tparam string path File path
-  -- @tparam string content Textual content
+  -- @tparam string content File contents
   function build:write(path, content)
     --path = '/'..path:gsub('^/', '')
     local full = ('/'..point..'/'..path):gsub('//', '/')
