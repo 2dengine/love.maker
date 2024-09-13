@@ -1,5 +1,6 @@
 <html>
 <head>
+<meta charset="UTF-8">
 <style>
 body { background-color:#fff; padding: 0; margin: 0; }
 table { border:1px solid #ccc; width:100%; padding:1em; background-color:#eee; }
@@ -24,14 +25,15 @@ hr { border-top: 1px solid #ccc; }
 <div class='page'>
 <div class='cont'>
 <h1>love.maker</h1>
-love.maker is a library that can minify, compile and compress your LÖVE2D project folder.<br>Developed and maintained by <a href="https://2dengine.com">2dengine.com</a>
+love.maker is a library that can minify, compile and compress your LÖVE2D project folder.<br>This project is developed and maintained by 2dengine LLC.
+Please support our work by visiting <a href="https://2dengine.com">2dengine.com</a>
 <br>Last updated on September 13, 2024<br><br>
 <h2 id='maker'>maker</h2>
 The "maker" module is used to create .love files or read comments from existing .love files.<br>
 <table>
-<tr><td><a href='#maker.getComment'>maker.getComment</a>(<span class='arg'>path</span>)</td><td>Returns the comment written to an existing .love file (ZIP file comment).</td></tr>
-<tr><td><a href='#maker.newBuild'>maker.newBuild</a>(<span class='arg'>gamepath</span>)</td><td>Creates a new build from a specified project directory.</td></tr>
-<tr><td><a href='#maker.setExtensions'>maker.setExtensions</a>(<span class='arg'>...</span>)</td><td>Sets the file extensions to be included in the .love file.</td></tr>
+<tr><td><a href='#maker.getComment'>maker.getComment</a>(<span class='arg'>path</span>)</td></tr>
+<tr><td><a href='#maker.newBuild'>maker.newBuild</a>(<span class='arg'>gamepath</span>)</td></tr>
+<tr><td><a href='#maker.setExtensions'>maker.setExtensions</a>(<span class='arg'>...</span>)</td></tr>
 </table>
 <h3 id='maker.getComment'>maker.getComment(<span class='arg'>path</span>)</h3>
 Returns the comment written to an existing .love file (ZIP file comment).
@@ -61,14 +63,14 @@ List of file extensions</td></tr>
 <br><br><br><h2 id='build'>build</h2>
 The "build" object is used to customize what is included or excluded in the generated .love file.<br>
 <table>
-<tr><td><a href='#build:allow'>build:allow</a>(<span class='arg'>path</span>)</td><td>Marks a specific file for inclusion.</td></tr>
-<tr><td><a href='#build:ignore'>build:ignore</a>(<span class='arg'>path</span>)</td><td>Marks a specific path for exclusion.</td></tr>
-<tr><td><a href='#build:ignoreMatch'>build:ignoreMatch</a>(<span class='arg'>pattern</span>)</td><td>Marks paths for exclusion based on pattern matching.</td></tr>
-<tr><td><a href='#build:isAllowed'>build:isAllowed</a>(<span class='arg'>path</span>)</td><td>Checks if the file path is included.</td></tr>
-<tr><td><a href='#build:recursive'>build:recursive</a>(<span class='arg'>prefix</span>, <span class='arg'>path</span>, <span class='arg'>func</span>)</td><td>This is an internal function.</td></tr>
-<tr><td><a href='#build:save'>build:save</a>(<span class='arg'>dest</span>, <span class='arg'>comment</span>, <span class='arg'>mode</span>)</td><td>Packages the project into a .love file.  The "mode" argument is used to optionally minify or compile the included .lua files.  Empty directories are not included in the generated .love file.</td></tr>
-<tr><td><a href='#build:scan'>build:scan</a>()</td><td>This is an internal function.</td></tr>
-<tr><td><a href='#build:write'>build:write</a>(<span class='arg'>path</span>, <span class='arg'>content</span>)</td><td>Adds a file to the build from string contents.  Replaces any files within the build located in the same path.</td></tr>
+<tr><td><a href='#build:allow'>build:allow</a>(<span class='arg'>path</span>)</td></tr>
+<tr><td><a href='#build:ignore'>build:ignore</a>(<span class='arg'>path</span>)</td></tr>
+<tr><td><a href='#build:ignoreMatch'>build:ignoreMatch</a>(<span class='arg'>pattern</span>)</td></tr>
+<tr><td><a href='#build:isAllowed'>build:isAllowed</a>(<span class='arg'>path</span>)</td></tr>
+<tr><td><a href='#build:recursive'>build:recursive</a>(<span class='arg'>prefix</span>, <span class='arg'>path</span>, <span class='arg'>func</span>)</td></tr>
+<tr><td><a href='#build:save'>build:save</a>(<span class='arg'>dest</span>, <span class='arg'>comment</span>, <span class='arg'>mode</span>)</td></tr>
+<tr><td><a href='#build:scan'>build:scan</a>()</td></tr>
+<tr><td><a href='#build:write'>build:write</a>(<span class='arg'>path</span>, <span class='arg'>content</span>)</td></tr>
 </table>
 <h3 id='build:allow'>build:allow(<span class='arg'>path</span>)</h3>
 Marks a specific file for inclusion.
