@@ -107,6 +107,7 @@ return function(maker, gamepath, point)
   
   --- Packages the project into a .love file.
   -- The "mode" argument is used to optionally minify or compile the included .lua files.
+  -- Empty directories are not included in the generated .love file.
   -- @tparam string dest Absolute path where the generated .love file is saved
   -- @tparam[opt] string comment String comment appended to the .love file
   -- @tparam[opt] string mode Processing mode: "none", "minify" or "dump"

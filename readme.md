@@ -1,28 +1,24 @@
 # love.maker
+This library was written in Lua specifically for the LÖVE2D framework.
 love.maker is a library that can minify, compile and compress your LÖVE2D project folder.
-This library includes URFS which provides access to the entire file system using absolute paths.
-Lua script files are compiled using the "string.dump" function and are only compatible with the same version of LÖVE2D or LuaJIT.
-Empty directories are not included in the generated .love project file.
-This library was designed specifically for the LÖVE2D framework.
+If you choose to compile your Lua script files, the resulting .love file will only run on the same version of LÖVE2D or LuaJIT.
+This library allows you to output .love files anywhere on your system using absolute paths.
+The complete documentation is available here: https://2dengine.com/doc/maker.html
 
 ## Example
 
 ```Lua
 love.maker = require("maker")
-love.maker.setExtensions('lua', 'png', 'txt') -- include only the specifed extensions
+love.maker.setExtensions('lua', 'png', 'txt') -- include only the specified extensions
 
-local build = love.maker.newBuild("C://path/to/project/folder/")
-build:ignore('/readme.txt') -- ignore a specific file
-build:ignoreMatch('^/.git') -- ignore based on pattern matching
-build:allow("/images/exception.jpg") -- whitelist a specific file
+local build = love.maker.newBuild("C://path/to/project/folder/") -- create from source folder
+build:ignore('/readme.txt') -- exclude a specific file
+build:ignoreMatch('^/%.git') -- exclude based on pattern matching
+build:allow('/images/exception.jpg') -- whitelist a specific file
 
--- destination path
-local sav = love.filesystem.getSaveDirectory()
-local proj = love.filesystem.getIdentity()
-local dest = sav.."/"..proj..".love"
-
-build:save(dest, "DEMO") -- build the .love project file
+build:save('C://path/to/output/game.love', 'DEMO') -- build the .love project file
 local comment = love.maker.getComment(dest)
+print(comment)
 ```
 
 ## Credits
