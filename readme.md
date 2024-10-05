@@ -1,9 +1,10 @@
 # love.maker
-This library was written in Lua specifically for the LÖVE2D framework.
-love.maker is a library that can minify, compile and compress your LÖVE2D project folder.
-If you choose to compile your Lua script files, the resulting .love file will only run on the same version of LÖVE2D or LuaJIT.
+This library was written in Lua specifically for the [LÖVE](https://love2d.org) framework.
+love.maker is a library that can minify, compile and compress your LÖVE project folder.
+If you choose to compile your Lua script files, the resulting .love file will only run on the exact same version of LÖVE or LuaJIT that was used when building.
 This library allows you to output .love files anywhere on your system using absolute paths.
-The complete documentation is available here: https://2dengine.com/doc/maker.html
+
+The source code available on [GitHub](https://github.com/2dengine/love.maker) and the official documentation is from [2dengine.com](https://2dengine.com/doc/maker.html)
 
 ## Example
 
@@ -22,15 +23,15 @@ print(comment)
 ```
 
 ## Credits
-Source code by 2dengine LLC (MIT License) https://github.com/2dengine/love.maker
+[Source code](https://github.com/2dengine/love.maker) by 2dengine LLC (MIT License)
 
-Compression by Rami Sabbagh (MIT License) https://github.com/Rami-Sabbagh/LoveZip
+[Compression](https://github.com/Rami-Sabbagh/LoveZip) by Rami Sabbagh (MIT License) 
 
-Minification by Marcus 'ReFreezed' Thunström (MIT License) https://github.com/ReFreezed/DumbLuaParser
+[Minification](https://github.com/ReFreezed/DumbLuaParser) by Marcus 'ReFreezed' Thunström (MIT License) 
 
-Un-Restricted File System by Ross Grams (MIT License)  https://github.com/rgrams/urfs
+[Un-Restricted File System](https://github.com/rgrams/urfs) by Ross Grams (MIT License)  
 
 ## Testing
 Linux testing by gphg
 
-Additional testing by the Love2D community https://love2d.org/forums/viewtopic.php?t=86893
+Additional testing by the Love2D community
