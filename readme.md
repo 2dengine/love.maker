@@ -4,8 +4,7 @@ love.maker is a library that can minify, compile and compress your project folde
 If you choose to compile your Lua script files, the resulting .love file will only run on the exact same version of LÖVE or LuaJIT that was used when building.
 This library allows you to output .love files anywhere on your system using absolute paths.
 
-
-The source code available on [GitHub](https://github.com/2dengine/love.maker) and the official documentation is on [2dengine.com](https://2dengine.com/doc/maker.html)
+The source code is available on [GitHub](https://github.com/2dengine/love.maker) and the official documentation is on [2dengine.com](https://2dengine.com/doc/maker.html)
 
 ## Example
 
