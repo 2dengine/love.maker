@@ -1,4 +1,4 @@
---!!strict
+--!strict
 --[=[===========================================================
 --=
 --=  Dumb Lua Parser - Lua parsing library
