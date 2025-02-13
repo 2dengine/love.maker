@@ -1,4 +1,4 @@
-name: SuperStrict check
+name: SuperStrict
 on: workflow_dispatch
 jobs:
   call-workflow-passing-data:
