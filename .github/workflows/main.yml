@@ -3,5 +3,3 @@ on: workflow_dispatch
 jobs:
   call-workflow-passing-data:
     uses: 2dengine/sstrict.lua/.github/workflows/validate.yml@main
-    with:
-      config-path: .github/labeler.yml
