@@ -3,4 +3,3 @@ on: workflow_dispatch
 jobs:
   call-workflow:
     uses: 2dengine/sstrict.lua/.github/workflows/validate.yml@main
-    uses: 2dengine/sstrict.lua/.github/workflows/scan.lua@main
