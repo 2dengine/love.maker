@@ -304,7 +304,6 @@ local function writeEndOfCenteralDirectory(zipFile,centeralDirectoryInfo,zipComm
     .ZIP file comment length        2 bytes
     .ZIP file comment       (variable size)
   ]]
-
   zipFile:write("\80\75\5\6") --end of central dir signature - 4 bytes - (0x06054b50)
   zipFile:write(short(0)) --number of this disk - 2 bytes
   zipFile:write(short(0)) --number of the disk with the start of the central directory - 2 bytes
@@ -338,6 +337,9 @@ function zapi.newZipWriter(zipFile)
     if zipFinished then
       return error("The .ZIP file is already finished !")
     end
+    zipComment = tostring(zipComment)
+    assert(#zipComment <= 65535, 'The .ZIP comment length exceeds the allowed limit')
+
     local centeralDirectoryInfo = writeCenteralDirectory(zipFile,filesInfos)
     writeEndOfCenteralDirectory(zipFile,centeralDirectoryInfo,zipComment)
     zipFinished = true

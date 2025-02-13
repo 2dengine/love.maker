@@ -37,22 +37,23 @@ end
 -- @see build:save
 function maker.getComment(path)
   path = path or source
-  local file, err = io.open(path, "rb")
-  if not file then
-    return nil, err
-  end
-  local comment
-  local pos = file:seek("end", -22)
-  for i = pos, 0, -1 do
+  local file = assert(io.open(path, "rb"))
+  assert(file:read(4) == "\80\75\3\4", "The specified resource is not a valid love package")
+  
+  local comment, offset
+  local length = file:seek("end")
+  for i = length - 22, math.max(length - 22 - 65535, 0), -1 do
     file:seek("set", i)
     if file:read(4) == "\80\75\5\6" then
-      file:seek("set", i + 22)
-      comment = file:read("*all")
+      local ecdr = file:read(18)
+      local lo, hi = ecdr:byte(17, 18)
+      offset = i + 22
+      comment = file:read(lo + hi*256)
       break
     end
   end
   file:close()
-  return comment
+  return comment, offset
 end
 
 return maker

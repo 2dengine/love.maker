@@ -4743,29 +4743,6 @@ local function getInformationAboutFunctions(theNode)
 					tableInsert(funcInfo.declIdents, identOrVararg)
 				end
 
-				--[[
-				if declIdent then
-					local declLike = declIdent.parent
-					local isInFunc = true
-					local parent   = identOrVararg.parent
-
-					while parent do
-						if parent == declLike then -- declLike may be a function itself.
-							break
-						elseif parent.type == "function" then
-							isInFunc = false
-							break
-						end
-						parent = parent.parent
-					end
-
-					tableInsert((isInFunc and funcInfo.locals or funcInfo.upvalues), identOrVararg)
-
-				else
-					tableInsert(funcInfo.globals, identOrVararg)
-				end
-				]]
-
 			elseif node.type == "declaration" or node.type == "for" then
 				tableInsert(funcInfo.declLikes, node) -- Note: Identifiers will be added to funcInfo.declIdents when we get to them.
 
@@ -4773,24 +4750,7 @@ local function getInformationAboutFunctions(theNode)
 				tableInsert(funcInfo.assignments, node)
 			end
 		end)
-
-		--[[ DEBUG
-		print("--------------")
-		printNode(funcInfo.node)
-		for i, ident in ipairs(funcInfo.locals) do
-			ioWrite("local   ", i, "  ") ; printNode(ident)
-		end
-		for i, ident in ipairs(funcInfo.upvalues) do
-			ioWrite("upvalue ", i, "  ") ; printNode(ident)
-		end
-		for i, ident in ipairs(funcInfo.globals) do
-			ioWrite("global  ", i, "  ") ; printNode(ident)
-		end
 	end
-	print("--------------")
-	--[==[]]
-	end
-	--]==]
 
 	return funcInfos
 end

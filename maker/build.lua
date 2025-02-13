@@ -1,5 +1,5 @@
 local lib = (...)
-lib = lib:gsub('%.build$', '')
+lib = lib:gsub("%.build$", "")
 local urfs = require(lib..".urfs")
 local lfs = love.filesystem
 
@@ -56,9 +56,9 @@ return function(maker, gamepath, point)
   -- @tparam string path File path
   -- @tparam string content File contents
   function build:write(path, content)
-    --path = '/'..path:gsub('^/', '')
-    local full = ('/'..point..'/'..path):gsub('//', '/')
-    assert(not lfs.getInfo(full , 'directory'), 'Cannot write to directory')
+    --path = "/"..path:gsub("^/", "")
+    local full = ("/"..point.."/"..path):gsub("//", "/")
+    assert(not lfs.getInfo(full , "directory"), "Cannot write to directory")
     written[path] = content
     files[path] = true
   end
@@ -68,10 +68,10 @@ return function(maker, gamepath, point)
   -- @tparam string path Relative path
   -- @tparam function func Callback function
   function build:recursive(prefix, path, func)
-    local full = (prefix..'/'..path):gsub('//', '/')
-    if lfs.getInfo(full, 'directory') then
+    local full = (prefix.."/"..path):gsub("//", "/")
+    if lfs.getInfo(full, "directory") then
       for _, item in pairs(lfs.getDirectoryItems(full)) do
-        build:recursive(prefix, path..'/'..item, func)
+        build:recursive(prefix, path.."/"..item, func)
       end
     end
     local sav = lfs.getSaveDirectory()
@@ -82,16 +82,16 @@ return function(maker, gamepath, point)
 
   --- This is an internal function.
   function build:scan()
-    if point ~= '' then
+    if point ~= "" then
       urfs.mount(gamepath, point)
-      assert(#lfs.getDirectoryItems(point) > 0, 'The mounted directory is empty:'..gamepath)
+      assert(#lfs.getDirectoryItems(point) > 0, "The mounted directory is empty:"..gamepath)
       --urfs.unmount(gamepath, point)
     end
     local allowed = maker.ext or {}
     for _, v in ipairs(allowed) do
       allowed[v:lower()] = true
     end
-    build:recursive(point, '', function(full, path)
+    build:recursive(point, "", function(full, path)
       if #allowed > 0 then
         local ext = path:match("^.+%.(.+)$")
         if not ext or allowed[ext:lower()] then
@@ -101,7 +101,7 @@ return function(maker, gamepath, point)
         files[path] = true
       end
     end)
-    if point ~= '' then
+    if point ~= "" then
       urfs.unmount(gamepath)
     end
   end
@@ -115,11 +115,8 @@ return function(maker, gamepath, point)
   -- @treturn boolean True if the .love file was saved successfully
   -- @treturn number Number of bytes written or an error message
   function build:save(dest, comment, mode)
-    local file, err = io.open(dest, 'wb')
-    if not file then
-      return false, err
-    end
-    if point ~= '' then
+    local file = assert(io.open(dest, "wb"))
+    if point ~= "" then
       urfs.mount(gamepath, point)
     end
     local zip = zapi.newZipWriter(file)
@@ -127,7 +124,7 @@ return function(maker, gamepath, point)
       local data = written[path]
       local modified
       if not data then
-        local full = ('/'..point..'/'..path):gsub('//', '/')
+        local full = ("/"..point.."/"..path):gsub("//", "/")
         local info = lfs.getInfo(full)
         if info and info.type == "file" then
           data = lfs.read(full)
@@ -136,8 +133,7 @@ return function(maker, gamepath, point)
             if mode == "minify" then
               data = minify(data, full, "minify")
             elseif mode == "dump" then
-              local func, msg = loadstring(data, full)
-              assert(func, msg)
+              local func = assert(loadstring(data, full))
               data = string.dump(func, true)
             end
           end
@@ -149,12 +145,13 @@ return function(maker, gamepath, point)
         zip.addFile(path, data, modified)
       end
     end
+
     zip.finishZip(comment)
     file:flush()
     --local size = file:getSize()
-    local size = file:seek('end')
+    local size = file:seek("end")
     file:close()
-    if point ~= '' then
+    if point ~= "" then
       urfs.unmount(gamepath)
     end
     return true, size
