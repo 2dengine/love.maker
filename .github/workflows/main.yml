@@ -1,5 +1,5 @@
 name: SuperStrict
 on: workflow_dispatch
 jobs:
-  call-workflow-passing-data:
+  call-workflow:
     uses: 2dengine/sstrict.lua/.github/workflows/validate.yml@main
