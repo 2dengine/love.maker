@@ -1,3 +1,13 @@
+--[[!
+This file is part of "love.maker"
+https://2dengine.com/doc/maker.html
+
+Copyright (c) 2019 2dengine LLC
+Copyright (c) 2022 Ross Grams
+Copyright (c) 2020-2021 Marcus 'ReFreezed' Thunström
+Copyright (c) 2018 Rami Sabbagh
+]]
+
 local lib = (...)
 lib = lib:gsub("%.build$", "")
 local urfs = require(lib..".urfs")
@@ -5,10 +15,15 @@ local lfs = love.filesystem
 
 local zapi = require(lib..".zapi")
 local parser = require(lib..".minify")
-local minify = function(s)
+local minify = function(s, full)
+  local comment = s:match("(%-%-%[%[%!.-%]%])") or ""
   local ast = parser.parse(s)
-  parser.minify(ast)
-  return parser.toLua(ast)
+  --parser.minify(ast)
+  if not pcall(parser.minify, ast) then
+    error(full)
+    return 
+  end
+  return comment..parser.toLua(ast)
 end
 
 return function(maker, gamepath, point)
@@ -93,7 +108,7 @@ return function(maker, gamepath, point)
     end
     build:recursive(point, "", function(full, path)
       if #allowed > 0 then
-        local ext = path:match("^.+%.(.+)$")
+        local ext = path:match("^.+%.(.-)$")
         if not ext or allowed[ext:lower()] then
           files[path] = true
         end
@@ -119,17 +134,19 @@ return function(maker, gamepath, point)
     if point ~= "" then
       urfs.mount(gamepath, point)
     end
+    local now = os.time()
     local zip = zapi.newZipWriter(file)
     for path in pairs(files) do
       local data = written[path]
-      local modified
+      local modified = now
       if not data then
         local full = ("/"..point.."/"..path):gsub("//", "/")
         local info = lfs.getInfo(full)
         if info and info.type == "file" then
           data = lfs.read(full)
           modified = info.modtime
-          if full:match("%.lua$") or full:match("%.ser$") then
+          local ext = path:match("^.+%.(.-)$")
+          if ext == "lua" or ext == "ser" then
             if mode == "minify" then
               data = minify(data, full, "minify")
             elseif mode == "dump" then

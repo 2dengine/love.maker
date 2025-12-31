@@ -1,3 +1,13 @@
+--[[!
+This file is part of "love.maker"
+https://2dengine.com
+
+Copyright (c) 2019 2dengine LLC
+Copyright (c) 2022 Ross Grams
+Copyright (c) 2020-2021 Marcus 'ReFreezed' Thunström
+Copyright (c) 2018 Rami Sabbagh
+]]
+
 local lib = (...)
 lib = lib:gsub('%.init$', '')
 local build = require(lib..".build")

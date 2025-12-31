@@ -1,8 +1,10 @@
 --!strict
--- Copyright (C) 2022 Ross Grams
---
--- This module is free software; you can redistribute it and/or
--- modify it under the terms of the MIT license.
+--[[!
+Copyright (C) 2022 Ross Grams
+
+This module is free software; you can redistribute it and/or
+modify it under the terms of the MIT license.
+]]
 
 local M = {}
 

@@ -1,21 +1,21 @@
 --!strict
+--[[!
+Dumb Lua Parser - Lua parsing library
+by Marcus 'ReFreezed' Thunström
+
+Tokenize Lua code or create ASTs (Abstract Syntax Trees)
+and convert the data back to Lua.
+
+Version: 2.3 (2022-06-23)
+
+License: MIT (see the bottom of this file)
+Website: http://refreezed.com/luaparser/
+Documentation: http://refreezed.com/luaparser/docs/
+
+Supported Lua versions: 5.1, 5.2, 5.3, 5.4, LuaJIT
+]]
+
 --[=[===========================================================
---=
---=  Dumb Lua Parser - Lua parsing library
---=  by Marcus 'ReFreezed' Thunström
---=
---=  Tokenize Lua code or create ASTs (Abstract Syntax Trees)
---=  and convert the data back to Lua.
---=
---=  Version: 2.3 (2022-06-23)
---=
---=  License: MIT (see the bottom of this file)
---=  Website: http://refreezed.com/luaparser/
---=  Documentation: http://refreezed.com/luaparser/docs/
---=
---=  Supported Lua versions: 5.1, 5.2, 5.3, 5.4, LuaJIT
---=
---==============================================================
 
 1 - Usage
 2 - API

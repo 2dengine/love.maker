@@ -1,17 +1,6 @@
---CRC32.lua by RamiLego4Game
---[[
-Made for use in LuaJIT (Requires the bitop library).
+--[[!
+CRC32.lua by RamiLego4Game
 
-local CRC32 = require("CRC32")
-
-local fileCRC = CRC32(DataString)
-
-References:
-https://en.wikipedia.org/wiki/Cyclic_redundancy_check
-http://www.ipgp.fr/~tuchais/earthworm/v6.3/src/data_sources/naqs2ew/crc32.c
-]]
-
---[[
 MIT License
 
 Copyright (c) 2018 Rami Sabbagh
@@ -33,6 +22,18 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+]]
+
+--[[
+Made for use in LuaJIT (Requires the bitop library).
+
+local CRC32 = require("CRC32")
+
+local fileCRC = CRC32(DataString)
+
+References:
+https://en.wikipedia.org/wiki/Cyclic_redundancy_check
+http://www.ipgp.fr/~tuchais/earthworm/v6.3/src/data_sources/naqs2ew/crc32.c
 ]]
 
 --local libpath = (...):match("(.-)[^%.]+$")

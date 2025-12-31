@@ -1,3 +1,13 @@
+--[[!
+This file is part of "love.maker"
+https://2dengine.com
+
+Copyright (c) 2019 2dengine LLC
+Copyright (c) 2022 Ross Grams
+Copyright (c) 2020-2021 Marcus 'ReFreezed' Thunström
+Copyright (c) 2018 Rami Sabbagh
+]]
+
 local libpath = (...):match("(.-)[^%.]+$")
 local crc32 = require(libpath.."crc32")
 local bit = bit or require("bit")
@@ -88,8 +98,27 @@ local function long(num)
   return short(lo)..short(hi)
 end
 
+-- thanks to: https://github.com/TomTasche
+local function stamp2bytes(timestamp)
+  local d = os.date('*t', timestamp)
+
+  local hour = d.hour
+  hour = lshift(hour, 6)
+  hour = bor(hour, d.min)
+  hour = lshift(hour, 5) 
+  hour = bor(hour, math.floor(d.sec/2))
+
+  local date = math.max(d.year - 1980, 0)
+  date = lshift(date, 4)
+  date = bor(date, d.month)
+  date = lshift(date, 5)
+  date = bor(date, d.day)
+
+  return hour, date
+end
+
 --== Internal functions ==--
-local header = "\80\75\3\4"..short(20)..char(2)..char(8)..short(8)..short(0)..short(0)
+--local header = "\80\75\3\4"..short(20)..char(2)..char(8)..short(8)..short(0)..short(0)
 
 local function writeFile(zipFile,fileName,fileData,modTime,extraField,fileComment,attributes)
   --local fileOffset = zipFile:tell()
@@ -113,12 +142,12 @@ local function writeFile(zipFile,fileName,fileData,modTime,extraField,fileCommen
     extra field (variable size)
   ]]
 
-  --zipFile:write("\80\75\3\4") --local file header signature - 4 bytes - (0x04034b50)
+  zipFile:write("\80\75\3\4") --local file header signature - 4 bytes - (0x04034b50)
 
-  --zipFile:write(short(20)) --version needed to extract - 2 bytes
+  zipFile:write(short(20)) --version needed to extract - 2 bytes
   --2.0 - File is compressed using Deflate compression
 
-  --zipFile:write(char(2)..char(8)) --general purpose bit flag - 2 bytes
+  zipFile:write(char(2)..char(8)) --general purpose bit flag - 2 bytes
   --[[(For Methods 8 and 9 - Deflating)
     Bit 2  Bit 1
       0      0    Normal (-en) compression option was used.
@@ -130,16 +159,14 @@ local function writeFile(zipFile,fileName,fileData,modTime,extraField,fileCommen
     the filename and comment fields for this file
     MUST be encoded using UTF-8. (see APPENDIX D)]]
 
-  --zipFile:write(short(8)) --compression method - 2 bytes
+  zipFile:write(short(8)) --compression method - 2 bytes
   --8 - The file is Deflated
 
-  --zipFile:write(short(0)) --last mod file time - 2 bytes
-  --Leave as zero, it doesn't worth calculating.
+  local hour, date = stamp2bytes(modTime)
+  zipFile:write(short(hour)) --last mod file time - 2 bytes
+  zipFile:write(short(date)) --last mod file date - 2 bytes
 
-  --zipFile:write(short(0)) --last mod file date - 2 bytes
-  --Leave as zero, it doesn't worth calculating.
-
-  zipFile:write(header)
+  --zipFile:write(header)
 
   local fileCRC32 = crc32(fileData)
   zipFile:write(long(fileCRC32)) --crc-32 - 4 bytes
@@ -238,26 +265,11 @@ local function writeCenteralDirectory(zipFile,filesInfos)
     --8 - The file is Deflated
 
     -- thanks to: https://github.com/TomTasche
-    local d = os.date('*t', fileInfo.modTime)
+    local hour, date = stamp2bytes(fileInfo.modTime)
 
-    local hour = d.hour
-    hour = lshift(hour, 6)
-    hour = bor(hour, d.min)
-    hour = lshift(hour, 5)
-    hour = bor(hour, d.sec/2)
-    
     zipFile:write(short(hour)) --last mod file time - 2 bytes
-    --Leave as zero, it doesn't worth calculating.
-    
-    local date = math.max(d.year - 1980, 0)
-    date = lshift(date, 4)
-    date = bor(date, d.month)
-    date = lshift(date, 5)
-    date = bor(date, d.day)
     
     zipFile:write(short(date)) --last mod file date - 2 bytes
-    --zipFile:write(short(0)) --last mod file date - 2 bytes
-    --Leave as zero, it doesn't worth calculating.
 
     zipFile:write(long(fileInfo.fileCRC32)) --crc-32 - 4 bytes
     --crc32 of uncompressed file data.
