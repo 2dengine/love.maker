@@ -78,6 +78,13 @@ return function(maker, gamepath, point)
     files[path] = true
   end
   
+  --- Removes a written file and ignores the path.
+  -- @tparam string path File path
+  function build:erase(path)
+    written[path] = nil
+    files[path] = nil
+  end
+  
   --- This is an internal function.
   -- @tparam string prefix Path prefix
   -- @tparam string path Relative path
@@ -130,10 +137,10 @@ return function(maker, gamepath, point)
   -- @treturn boolean True if the .love file was saved successfully
   -- @treturn number Number of bytes written or an error message
   function build:save(dest, comment, mode)
-    local file = assert(io.open(dest, "wb"))
     if point ~= "" then
       urfs.mount(gamepath, point)
     end
+    local file = assert(io.open(dest, "wb"))
     local now = os.time()
     local zip = zapi.newZipWriter(file)
     for path in pairs(files) do
@@ -162,7 +169,6 @@ return function(maker, gamepath, point)
         zip.addFile(path, data, modified)
       end
     end
-
     zip.finishZip(comment)
     file:flush()
     --local size = file:getSize()
