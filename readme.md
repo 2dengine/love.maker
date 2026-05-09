@@ -25,7 +25,7 @@ print(comment)
 ```
 
 ## Credits
-[Source code](https://github.com/2dengine/love.maker) by 2dengine LLC (MIT License)
+[Source code](https://2dengine.com/doc/maker.html) by 2dengine LLC (MIT License)
 
 [Compression](https://github.com/Rami-Sabbagh/LoveZip) by Rami Sabbagh (MIT License) 
 
