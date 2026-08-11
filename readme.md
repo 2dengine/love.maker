@@ -33,6 +33,6 @@ print(comment)
 
 [Un-Restricted File System](https://github.com/rgrams/urfs) by Ross Grams (MIT License)  
 
-Testing by gphg and the [LÖVE community](https://love2d.org/forums/)
+Testing by [gphg](https://github.com/gphg) and the [LÖVE community](https://love2d.org/forums/)
 
 Please support [2dengine](https://2dengine.com) so we can release more free software in the future.
